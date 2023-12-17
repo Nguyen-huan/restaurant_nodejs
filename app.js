@@ -8,6 +8,11 @@ const authJwt = require('./helpers/jwt');
 const errorHandler = require('./helpers/error-handler');
 
 
+// mongodb compass
+const mongodb = require('mongodb');
+const MongoClient = mongodb.MongoClient;
+
+
 app.use(cors());
 app.options("*", cors());
 
@@ -46,6 +51,9 @@ mongoose
     .catch((err) => {
         console.log(err);
     });
+
+  
+
 
 //Server
 app.listen(3000, () => {

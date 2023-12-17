@@ -33,19 +33,56 @@ const storage = multer.diskStorage({
 
 const uploadOptions = multer({ storage: storage })
 
+router.get(`/pagination`, async (req, res) => {
+    const page = parseInt(req.query.page) || 1; 
+    const perPage = 3;
+  
+    try {
+        const totalCount = await Dish.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
 
+        const result = await Dish.find({}).populate('category')
+        .skip((page - 1) * perPage)
+        .limit(perPage);
 
-
+        res.json({
+        totalPages: totalPages,
+        currentPage: page,
+        dishes: result
+        });
+    } catch (error) {
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+})
 
 router.get(`/`, async (req, res) => {
-    const dishList = await Dish.find().populate('category');
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 3;
 
-    if(!dishList) {
-        res.status(500).json({success: false})
+    try {
+        const dishList = await Dish.find({}).populate('category')
+        .skip((page - 1) * perPage)
+        .limit(perPage);
+        if(!dishList) {
+            res.status(500).json({success: false})
+        }
+        res.send(dishList);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
     }
-
-    res.send(dishList);
 })
+
+
+// router.get(`/`, async (req, res) => {
+//     const dishList = await Dish.find().populate('category');
+
+//     if(!dishList) {
+//         res.status(500).json({success: false})
+//     }
+
+//     res.send(dishList);
+// })
 
 router.get('/:id', async (req, res) => {
     const dish = await Dish.findById(req.params.id).populate('category');
